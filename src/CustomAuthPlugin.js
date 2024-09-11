@@ -7,8 +7,7 @@ class CustomAuthPlugin {
     }
 
     start() {
-        console.log('Custom Auth Plugin started');
-
+        console.log('[AuthPlugin] Custom Auth Plugin started');
         if (!this.bot.MC_SERVER) {
             console.log('[AuthPlugin] bot.MC_SERVER not specified. The bot will log in to /surv1');
             this.bot.MC_SERVER = '1';

@@ -17,3 +17,5 @@ const botOptions = {
     ]
 };
 ```
+
+Основной репозиторий: https://github.com/mmeerrkkaa/blockmind/tree/main

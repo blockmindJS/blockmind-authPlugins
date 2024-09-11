@@ -3,7 +3,6 @@ class CustomAuthPlugin {
         this.bot = bot;
         this.messageListener = this.handleMessage.bind(this);
         this.wasInHub = false;
-        //
     }
 
     start() {

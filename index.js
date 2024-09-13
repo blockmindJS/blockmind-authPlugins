@@ -1,3 +1,7 @@
 const CustomAuthPlugin = require('./src/CustomAuthPlugin');
 
-module.exports = CustomAuthPlugin;
+// Функция для загрузки плагина
+module.exports = (bot, options) => {
+    const plugin = new CustomAuthPlugin(bot, options);
+    plugin.start();
+};

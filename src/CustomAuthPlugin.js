@@ -1,42 +1,31 @@
-const { BasePlugin } = require('blockmind');
-
-class CustomAuthPlugin extends BasePlugin {
-    constructor(bot, options) {
-        super(bot, options);
-        this.MC_SERVER = this.options.MC_SERVER;
-        this.messageListener = this.handleMessage.bind(this);
+class CustomAuthPlugin {
+    constructor(bot, options = {}) {
+        this.bot = bot;
+        this.options = options;
+        this.MC_SERVER = options.MC_SERVER || '1';
+        this.botPassword = bot.password || options.password;
         this.wasInHub = false;
     }
 
     start() {
-        super.start();
         console.log('[AuthPlugin] Custom Auth Plugin started');
-        if (!this.MC_SERVER) {
+
+        if (!this.bot.MC_SERVER) {
             console.log('[AuthPlugin] bot.MC_SERVER not specified. The bot will log in to /surv1');
-            this.MC_SERVER = '1';
+            this.bot.MC_SERVER = this.MC_SERVER;
         }
 
-
-        this.bot.on('message', this.messageListener);
-        this.bot.on('spawn', async () => {
-            const worldType = await this.handleWorldType();
-            if (worldType === 'Hub') {
-                this.wasInHub = true;
-                await this.bot.sendMessage('local', `/surv${this.bot.MC_SERVER}`);
-            } else if (worldType === 'Survival') {
-                console.log('Player is in Survival world');
-            }
-        });
+        this.bot.on('message', this.handleMessage.bind(this));
+        this.bot.on('spawn', this.onSpawn.bind(this));
     }
 
-    async handleAuthMessage(message) {
-        const loginMatch = message.match(/^\n*(?:\||›|◊) Авторизируйтесь (?:»|›) \/login \[пароль\]/);
-        const regMatch = message.match(/^\n*(?:\||›|◊) Зарегистрируйтесь (?:»|›) \/reg \[пароль\]/);
-
-        if (loginMatch) {
-            await this.bot.sendMessage('local', '/login ' + this.bot.password);
-        } else if (regMatch) {
-            await this.bot.sendMessage('local', '/reg ' + this.bot.password);
+    async onSpawn() {
+        const worldType = await this.handleWorldType();
+        if (worldType === 'Hub') {
+            this.wasInHub = true;
+            await this.bot.sendMessage('local', `/surv${this.MC_SERVER}`);
+        } else if (worldType === 'Survival') {
+            console.log('Player is in Survival world');
         }
     }
 
@@ -47,13 +36,20 @@ class CustomAuthPlugin extends BasePlugin {
         }
     }
 
+    async handleAuthMessage(message) {
+        const loginMatch = message.match(/^\n*(?:\||›|◊) Авторизируйтесь (?:»|›) \/login \[пароль\]/);
+        const regMatch = message.match(/^\n*(?:\||›|◊) Зарегистрируйтесь (?:»|›) \/reg \[пароль\]/);
+
+        if (loginMatch) {
+            await this.bot.sendMessage('local', '/login ' + this.botPassword);
+        } else if (regMatch) {
+            await this.bot.sendMessage('local', '/reg ' + this.botPassword);
+        }
+    }
+
     async handleWorldType() {
         if (this.bot.game.difficulty === 'peaceful' && this.bot.game.levelType === 'flat') {
-            if (this.bot.game.gameMode === 'adventure') {
-                return 'Hub';
-            } else {
-                return 'Auth';
-            }
+            return this.bot.game.gameMode === 'adventure' ? 'Hub' : 'Auth';
         } else if (this.bot.game.difficulty === 'easy' && this.bot.game.levelType === 'default') {
             return 'Survival';
         }

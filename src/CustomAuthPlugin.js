@@ -4,6 +4,7 @@ class CustomAuthPlugin {
         this.options = options;
         this.botPassword = bot.password || options.password;
         this.wasInHub = false;
+        this.MC_SERVER = bot.MC_SERVER || options.MC_SERVER;
         //
     }
 

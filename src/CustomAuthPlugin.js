@@ -2,7 +2,6 @@ class CustomAuthPlugin {
     constructor(bot, options = {}) {
         this.bot = bot;
         this.options = options;
-        this.MC_SERVER = options.MC_SERVER || '1';
         this.botPassword = bot.password || options.password;
         this.wasInHub = false;
     }
@@ -12,7 +11,7 @@ class CustomAuthPlugin {
 
         if (!this.bot.MC_SERVER) {
             console.log('[AuthPlugin] bot.MC_SERVER not specified. The bot will log in to /surv1');
-            this.bot.MC_SERVER = this.MC_SERVER;
+            this.bot.MC_SERVER = 1;
         }
 
         this.bot.on('message', this.handleMessage.bind(this));

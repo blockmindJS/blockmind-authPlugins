@@ -5,7 +5,6 @@ class CustomAuthPlugin {
         this.botPassword = bot.password || options.password;
         this.wasInHub = false;
         this.MC_SERVER = bot.MC_SERVER || options.MC_SERVER;
-        //
     }
 
     start() {
@@ -13,15 +12,22 @@ class CustomAuthPlugin {
 
         if (!this.bot.MC_SERVER) {
             console.log('[AuthPlugin] bot.MC_SERVER not specified. The bot will log in to /surv1');
-            this.bot.MC_SERVER = 1;
+            this.MC_SERVER = 1;
         }
 
         this.bot.on('message', this.handleMessage.bind(this));
         this.bot.on('spawn', this.onSpawn.bind(this));
+
+        setTimeout(() => {
+            this.bot.isAlive = true
+            this.bot.emit('spawn')
+        }, 1000)
+
     }
 
     async onSpawn() {
         const worldType = await this.handleWorldType();
+
         if (worldType === 'Hub') {
             this.wasInHub = true;
             await this.bot.sendMessage('local', `/surv${this.MC_SERVER}`);
@@ -38,8 +44,8 @@ class CustomAuthPlugin {
     }
 
     async handleAuthMessage(message) {
-        const loginMatch = message.match(/^\n*(?:\||›|◊) Авторизируйтесь (?:»|›) \/login \[пароль\]/);
-        const regMatch = message.match(/^\n*(?:\||›|◊) Зарегистрируйтесь (?:»|›) \/reg \[пароль\]/);
+        const loginMatch = message.includes('/login');
+        const regMatch = message.includes('/reg');
 
         if (loginMatch) {
             await this.bot.sendMessage('local', '/login ' + this.botPassword);

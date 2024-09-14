@@ -19,9 +19,13 @@ class CustomAuthPlugin {
         this.bot.on('spawn', this.onSpawn.bind(this));
 
         setTimeout(() => {
-            this.bot.isAlive = true
-            this.bot.emit('spawn')
-        }, 1000)
+            if (this.bot.entity) {
+                this.bot.isAlive = true;
+                this.bot.emit('spawn');
+            } else {
+                console.log('Bot entity is not initialized yet.');
+            }
+        }, 1000);
 
     }
 

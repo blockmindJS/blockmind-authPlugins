@@ -53,11 +53,15 @@ class CustomAuthPlugin {
     async handleAuthMessage(message) {
         const loginMatch = message.includes('/login');
         const regMatch = message.includes('/reg');
+        const aaaaaa = message.includes('для начала');
 
         if (loginMatch) {
             await this.bot.sendMessage('local', '/login ' + this.botPassword);
         } else if (regMatch) {
             await this.bot.sendMessage('local', '/reg ' + this.botPassword);
+        } else if (aaaaaa) {
+            await this.bot.sendMessage('local', '/login ' + this.botPassword);
+            await this.bot.sendMessage('local', '/surv' + this.MC_SERVER);
         }
     }
 

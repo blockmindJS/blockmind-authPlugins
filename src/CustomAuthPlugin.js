@@ -18,15 +18,18 @@ class CustomAuthPlugin {
         this.bot.on('message', this.handleMessage.bind(this));
         this.bot.on('spawn', this.onSpawn.bind(this));
 
-        setTimeout(() => {
-            if (this.bot.entity) {
-                this.bot.isAlive = true;
-                this.bot.emit('spawn');
-            } else {
-                console.log('Bot entity is not initialized yet.');
-            }
-        }, 1000);
+        setTimeout(this.checkBotEntity.bind(this), 1000);
+    }
 
+    checkBotEntity() {
+        if (this.bot.entity) {
+            this.bot.isAlive = true;
+            this.bot.emit('spawn');
+            console.log('Bot entity initialized, spawn event emitted.');
+        } else {
+            console.log('Bot entity is not initialized yet, retrying in 1 second...');
+            setTimeout(this.checkBotEntity.bind(this), 1000);
+        }
     }
 
     async onSpawn() {

@@ -10,37 +10,40 @@ class CustomAuthPlugin {
     start() {
         console.log('[AuthPlugin] Custom Auth Plugin started');
 
-        if (!this.bot.MC_SERVER) {
+        if (!this.MC_SERVER) {
             console.log('[AuthPlugin] bot.MC_SERVER not specified. The bot will log in to /surv1');
             this.MC_SERVER = 1;
         }
 
-        this.bot.on('message', this.handleMessage.bind(this));
-        this.bot.on('spawn', this.onSpawn.bind(this));
-
-        setTimeout(this.checkBotEntity.bind(this), 1000);
-    }
-
-    checkBotEntity() {
-        if (this.bot.entity) {
+        this.checkBotEntity(async () => {
             this.bot.isAlive = true;
-            this.bot.emit('spawn');
-            console.log('Bot entity initialized, spawn event emitted.');
+
+            const worldType = await this.handleWorldType();
+
+            if (worldType === 'Hub') {
+                this.wasInHub = true;
+                await this.bot.sendMessage('local', `/surv${this.MC_SERVER}`);
+            } else if (worldType === 'Survival') {
+                console.log('Player is in Survival world');
+            }
+
+            this.bindEvents();
+        });
+    }
+
+    checkBotEntity(callback) {
+        if (this.bot.entity) {
+            console.log('[AuthPlugin] Bot entity initialized.');
+            callback();
         } else {
-            console.log('Bot entity is not initialized yet, retrying in 1 second...');
-            setTimeout(this.checkBotEntity.bind(this), 1000);
+            console.log('[AuthPlugin] Bot entity is not initialized yet, retrying in 1 second...');
+            setTimeout(() => this.checkBotEntity(callback), 1000);
         }
     }
 
-    async onSpawn() {
-        const worldType = await this.handleWorldType();
+    bindEvents() {
 
-        if (worldType === 'Hub') {
-            this.wasInHub = true;
-            await this.bot.sendMessage('local', `/surv${this.MC_SERVER}`);
-        } else if (worldType === 'Survival') {
-            console.log('Player is in Survival world');
-        }
+        this.bot.on('message', this.handleMessage.bind(this));
     }
 
     async handleMessage(jsonMsg) {
@@ -56,8 +59,10 @@ class CustomAuthPlugin {
 
         if (loginMatch) {
             await this.bot.sendMessage('local', '/login ' + this.botPassword);
+            await this.bot.sendMessage('local', `/surv${this.MC_SERVER}`);
         } else if (regMatch) {
             await this.bot.sendMessage('local', '/reg ' + this.botPassword);
+            await this.bot.sendMessage('local', `/surv${this.MC_SERVER}`);
         }
     }
 
